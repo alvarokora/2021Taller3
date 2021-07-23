@@ -21,6 +21,8 @@ public interface SistemaTaller3 {
     public boolean asociarCampeonJugador(String nombre, String nombreCampeon);
     public boolean ingresarOrbe(String nombre);
     public boolean asociarOrbeJugador(String nombre, String nombreOrbe);
+    public boolean asociarSkinCampeon(String nombre, String nombreSkin);
+    public boolean asociarSkinJugador(String nombre, String nombreCampeon, String nombreSkin);
     public String obtenerInformacion(String nombre);
     public boolean ingresarBalanceMensual(String fecha, double venta);
     public String agregarSaldo(String nombre, double saldoNuevo);

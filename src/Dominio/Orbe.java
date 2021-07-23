@@ -58,4 +58,27 @@ public class Orbe {
         this.orbe = orbe;
     }
     
+    public Campeon orbeCampeon(){
+        Random r = new Random();
+        int indice = r.nextInt(listaCampeon.size());
+        return listaCampeon.get(indice);
+    }
+    
+    public Aspecto orbeFragmento(){
+        Random r = new Random();
+        int indice = r.nextInt(listaAspectoFragmento.getSize());
+        return listaAspectoFragmento.buscarAspecto(indice);
+    }
+    
+    public Orbe orbeOrbe(){
+        Orbe o = new Orbe(nombre);
+        return o;
+    }
+    
+    public int abrirOrbe(){
+        Random r = new Random();
+        int valor = r.nextInt(100)+1;
+        return valor;
+    }
+    
 }

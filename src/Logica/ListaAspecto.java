@@ -14,9 +14,11 @@ import Dominio.*;
 public class ListaAspecto {
     
     private NodoAspecto last;
+    private int size;
     
     public ListaAspecto(){
         last = null;
+        size = 0;
     }
 
     public NodoAspecto getLast() {
@@ -25,6 +27,14 @@ public class ListaAspecto {
 
     public void setLast(NodoAspecto last) {
         this.last = last;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
     
     public boolean isEmpty(){
@@ -46,6 +56,7 @@ public class ListaAspecto {
             last.setPrev(nodo);
         }
         last = nodo;
+        size++;
     }
     
     public Aspecto buscarAspecto(int i){
