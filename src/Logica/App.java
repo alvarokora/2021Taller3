@@ -53,7 +53,7 @@ public class App {
         return false;
     }
     
-    public static boolean lectura(SistemaTaller3 sistema, List <Campeon> listaCampeon, List <Persona> listaPersona){
+    public static boolean lectura(SistemaTaller3 sistema, List <Campeon> listaCampeon, List <Persona> listaPersona, List <Orbe> listaOrbe){
         try{
             
             File arch = new File("aspectosPersonajes.txt");
@@ -133,6 +133,7 @@ public class App {
                 for(int i=0;i<particiones.length;i++){
                     String nombre = particiones[i];
                     sistema.ingresarOrbe(nombre);
+                    listaOrbe.add(new Orbe(nombre));
                 }
             }
             s.close();
@@ -143,13 +144,53 @@ public class App {
         }
     }
     
-    public static void menu(SistemaTaller3 sistema, List <Campeon> listaCampeon, Scanner s, List <Persona> listaPersona){
+    public static boolean revisarNombreOrbe(List <Orbe> listaOrbe, String nombreOrbe){
+        for(int i=0;i<listaOrbe.size();i++){
+            if(listaOrbe.get(i).getNombre().equalsIgnoreCase(nombreOrbe))
+                return true;
+        }
+        return false;
+    }
+    
+    public static boolean revisarSaldoUsuario(List <Persona> listaPersona, String nombre){
+        for(int i=0;i<listaPersona.size();i++){
+            if(listaPersona.get(i) instanceof Jugador){
+                if(listaPersona.get(i).getNombre().equalsIgnoreCase(nombre)){
+                    Jugador j = (Jugador) listaPersona.get(i);
+                    if(j.getSaldo()-1350 < 0){
+                        return true;
+                    }else
+                        return false;
+                }
+            }
+        }
+        return false;
+    }
+    
+    public static boolean revisarNombreFragmentoAspecto(List <Persona> listaPersona, String nombreUsuario, String nombreFragmento){
+        for(int i=0;i<listaPersona.size();i++){
+            if(listaPersona.get(i) instanceof Jugador){
+                if(listaPersona.get(i).getNombre().equalsIgnoreCase(nombreUsuario)){
+                    Jugador jugador = (Jugador) listaPersona.get(i);
+                    for(int j=0;j<jugador.getListaFragmentoAspecto().getSize();j++){
+                        if(jugador.getListaFragmentoAspecto().buscarAspecto(j).getNombre().equalsIgnoreCase(nombreFragmento))
+                            return true;
+                    }
+                    break;
+                }
+            }
+        }
+        return false;
+    }
+    
+    public static void menu(SistemaTaller3 sistema, List <Campeon> listaCampeon, Scanner s, List <Persona> listaPersona, List <Orbe> listaOrbe, ListaAspecto listaAspecto, List <Balance> listaVenta){
         System.out.println("----------\nBienvenido\n----------");
-        if(lectura(sistema,listaCampeon,listaPersona)){
+        if(lectura(sistema,listaCampeon,listaPersona,listaOrbe)){
             System.out.print("Ingrese fecha(dd/mm/aaaa): ");
             String fecha = s.next();
             System.out.print("Ingrese nombre de usuario: ");
             String nombre = s.next();
+            sistema.cerrarSistema(listaPersona, listaAspecto, listaCampeon, listaVenta, listaOrbe);
             while(revisarNombreUsuario(listaPersona,nombre)==false){
                 System.out.print("Nombre de usuario ingresado erroneo, ingrese nuevamente: ");
                 nombre = s.next();
@@ -180,12 +221,50 @@ public class App {
                                 monto = s.nextDouble();
                             }
                             System.out.println(sistema.agregarSaldo(nombre, monto));
+                            sistema.cerrarSistema(listaPersona, listaAspecto, listaCampeon, listaVenta, listaOrbe);
                         }
                         if(opcion.equalsIgnoreCase("3")){
                             System.out.println(sistema.obtenerOrbe());
+                            System.out.print("Ingrese nombre del orbe: ");
+                            String nombreOrbe = s.next();
+                            while(revisarNombreOrbe(listaOrbe,nombreOrbe)==false){
+                                System.out.print("Nombre ingresado erroneo, ingrese nuevamente: ");
+                                nombreOrbe = s.next();
+                            }
+                            if(revisarSaldoUsuario(listaPersona,nombre)){
+                                System.out.print("Tiene suficiente saldo, desea abrir el orbe(si/no): ");
+                                String respuesta = s.next();
+                                while(!respuesta.equalsIgnoreCase("si") && !respuesta.equalsIgnoreCase("no")){
+                                    System.out.print("Opcion ingresada erronea, ingrese nuevamente(si/no): ");
+                                    respuesta = s.next();
+                                }
+                                System.out.println(sistema.comprarOrbe(nombreOrbe,respuesta,nombre));
+                                sistema.cerrarSistema(listaPersona, listaAspecto, listaCampeon, listaVenta, listaOrbe);
+                            }else
+                                System.out.println("El cliente no tiene suficiente saldo para comprar el orbe");
                         }
                         if(opcion.equalsIgnoreCase("4")){
-                            
+                            System.out.println(sistema.obtenerAspectoUsuario(nombre));
+                            System.out.print("Ingrese nombre del aspecto 1: ");
+                            String nombreAspecto1 = s.next();
+                            while(revisarNombreFragmentoAspecto(listaPersona,nombre,nombreAspecto1)==false){
+                                System.out.print("Nombre ingresado erroneo, ingrese nuevamente: ");
+                                nombreAspecto1 = s.next();
+                            }
+                            System.out.print("Ingrese nombre del aspecto 2: ");
+                            String nombreAspecto2 = s.next();
+                            while(revisarNombreFragmentoAspecto(listaPersona,nombre,nombreAspecto2)==false){
+                                System.out.print("Nombre ingresado erroneo, ingrese nuevamente: ");
+                                nombreAspecto2 = s.next();
+                            }
+                            System.out.print("Ingrese nombre del aspecto 3: ");
+                            String nombreAspecto3 = s.next();
+                            while(revisarNombreFragmentoAspecto(listaPersona,nombre,nombreAspecto3)==false){
+                                System.out.print("Nombre ingresado erroneo, ingrese nuevamente: ");
+                                nombreAspecto3 = s.next();
+                            }
+                            System.out.println(sistema.reRoll(nombreAspecto1, nombreAspecto2, nombreAspecto3, nombre));
+                            sistema.cerrarSistema(listaPersona, listaAspecto, listaCampeon, listaVenta, listaOrbe);
                         }
                         if(opcion.equalsIgnoreCase("5")){
                             
@@ -228,7 +307,10 @@ public class App {
         List <Campeon> listaCampeon = new LinkedList();
         Scanner s = new Scanner(System.in);
         List <Persona> listaPersona = new ArrayList();
-        menu(sistema,listaCampeon,s,listaPersona);
+        List <Orbe> listaOrbe = new LinkedList();
+        ListaAspecto listaAspecto = new ListaAspecto();
+        List <Balance> listaBalance = new LinkedList();
+        menu(sistema,listaCampeon,s,listaPersona,listaOrbe,listaAspecto,listaBalance);
     }
     
 }

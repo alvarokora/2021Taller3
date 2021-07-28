@@ -66,8 +66,39 @@ public class Orbe {
     
     public Aspecto orbeFragmento(){
         Random r = new Random();
-        int indice = r.nextInt(listaAspectoFragmento.getSize());
-        return listaAspectoFragmento.buscarAspecto(indice);
+        int probabilidad = r.nextInt(100)+1;
+        if(probabilidad==0)
+            probabilidad++;
+        if(probabilidad>0 && probabilidad<=5){
+            while(true){
+                int indice = r.nextInt(listaAspectoFragmento.getSize());
+                if(listaAspectoFragmento.buscarAspecto(indice).getTipo().equalsIgnoreCase("Mitica"))
+                    return listaAspectoFragmento.buscarAspecto(indice);
+            }
+        }
+        if(probabilidad>5 && probabilidad<=20){
+            while(true){
+                int indice = r.nextInt(listaAspectoFragmento.getSize());
+                if(listaAspectoFragmento.buscarAspecto(indice).getTipo().equalsIgnoreCase("Legendaria"))
+                    return listaAspectoFragmento.buscarAspecto(indice);
+            }
+        }
+        if(probabilidad>20 && probabilidad <= 50) {
+            while (true){
+                int indice = r.nextInt(listaAspectoFragmento.getSize());
+                if(listaAspectoFragmento.buscarAspecto(indice).getTipo().equalsIgnoreCase("Epica")) {
+                    return listaAspectoFragmento.buscarAspecto(indice);
+                }
+            }
+        }
+        if(probabilidad>50 && probabilidad<=100){
+            while(true){
+                int indice = r.nextInt(listaAspectoFragmento.getSize());
+                if(listaAspectoFragmento.buscarAspecto(indice).getTipo().equalsIgnoreCase("Normal"))
+                    return listaAspectoFragmento.buscarAspecto(indice);
+            }
+        }
+        return null;
     }
     
     public Orbe orbeOrbe(){

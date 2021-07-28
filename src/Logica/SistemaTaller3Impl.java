@@ -55,7 +55,22 @@ public class SistemaTaller3Impl implements SistemaTaller3{
 
     @Override
     public boolean asociarCampeonJugador(String nombre, String nombreCampeon) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for(int i=0;i<listaPersona.size();i++){
+            if(listaPersona.get(i) instanceof Jugador){
+                if(listaPersona.get(i).getNombre().equalsIgnoreCase(nombre)){
+                    Jugador jugador = (Jugador) listaPersona.get(i);
+                    int j = 0;
+                    for(j=0;j<listaCampeon.size();j++){
+                        if(listaCampeon.get(j).getNombre().equalsIgnoreCase(nombreCampeon))
+                            break;
+                    }
+                    jugador.getListaCampeon().add(listaCampeon.get(j));
+                    listaPersona.add(i, jugador);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -178,18 +193,144 @@ public class SistemaTaller3Impl implements SistemaTaller3{
     }
 
     @Override
-    public String comprarOrbe(String nombre, String respuesta) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String comprarOrbe(String nombre, String respuesta, String nombreUsuario) {
+        int i = 0;
+        for(i=0;i<listaPersona.size();i++){
+            if(listaPersona.get(i) instanceof Jugador){
+                if(listaPersona.get(i).getNombre().equalsIgnoreCase(nombreUsuario))
+                    break;
+            }
+        }
+        int j=0;
+        for(j=0;j<listaOrbe.size();j++){
+            if(listaOrbe.get(j).getNombre().equalsIgnoreCase(nombre))
+                break;
+        }
+        if(respuesta.equalsIgnoreCase("no")){
+            Orbe orbe = listaOrbe.get(j);
+            listaOrbe.remove(j);
+            Jugador jugador = (Jugador) listaPersona.get(i);
+            jugador.getListaOrbe().add(orbe);
+            listaPersona.add(i, jugador);
+            return "Orbe agregado al inventario de orbes";
+        }
+        if(respuesta.equalsIgnoreCase("si")){
+            int cont = listaOrbe.get(j).abrirOrbe();
+            if(cont==0)
+                cont++;
+            if(cont>0 && cont<=45){
+                Orbe orbe = listaOrbe.get(j);
+                listaOrbe.remove(j);
+                Jugador jugador = (Jugador) listaPersona.get(i);
+                Aspecto aspecto = orbe.orbeFragmento();
+                jugador.getListaFragmentoAspecto().addAspecto(aspecto);
+                listaPersona.add(i, jugador);
+                return "Orbe abierto y salio el fragmento de aspecto: "+aspecto.getNombre();
+            }
+            if(cont>=46 && cont<=90){
+                Orbe orbe = listaOrbe.get(j);
+                listaOrbe.remove(j); 
+                Jugador jugador = (Jugador) listaPersona.get(i);
+                Campeon campeon = orbe.orbeCampeon();
+                jugador.getListaCampeon().add(campeon);
+                listaPersona.add(i, jugador);
+                return "Orbe abierto y salio el campeon: "+campeon.getNombre();
+            }
+            if(cont>=91 && cont<=100){
+                Orbe orbe = listaOrbe.get(j);
+                listaOrbe.remove(j);   
+                Jugador jugador = (Jugador) listaPersona.get(i);
+                jugador.getListaOrbe().add(orbe.orbeOrbe());
+                listaPersona.add(i, jugador);
+                return "Orbe abierto y salio otro orbe";
+            }
+        }
+        return null;
     }
 
     @Override
     public String obtenerAspectoUsuario(String nombre) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String r = "";
+        for(int i=0;i<listaPersona.size();i++){
+            if(listaPersona.get(i) instanceof Jugador){
+                if(listaPersona.get(i).getNombre().equalsIgnoreCase(nombre)){
+                    Jugador jugador = (Jugador) listaPersona.get(i);
+                    for(int j=0;j<jugador.getListaFragmentoAspecto().getSize();j++){
+                        r+="Aspecto "+(j+1)+": "+jugador.getListaFragmentoAspecto().buscarAspecto(j).getNombre()+"\n";
+                    }
+                    break;
+                }
+            }
+        }
+        return r;
     }
 
     @Override
     public String reRoll(String nombre1, String nombre2, String nombre3, String nombreUsuario) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String r = "";
+        for(int i=0;i<listaPersona.size();i++){
+            if(listaPersona.get(i) instanceof Jugador){
+                if(listaPersona.get(i).getNombre().equalsIgnoreCase(nombreUsuario)){
+                    Jugador jugador = (Jugador) listaPersona.get(i);
+                    jugador.getListaFragmentoAspecto().eliminarAspecto(nombre1);
+                    jugador.getListaFragmentoAspecto().eliminarAspecto(nombre2);
+                    jugador.getListaFragmentoAspecto().eliminarAspecto(nombre3);
+                    Random ran = new Random();
+                    int probabilidad = ran.nextInt(100)+1;
+                    boolean resp = true;
+                    while(resp){
+                        for(int j=0;j<listaCampeon.size();j++){
+                            int campeonIndex = ran.nextInt(jugador.getListaCampeon().size());
+                            if(jugador.getListaCampeon().get(campeonIndex).getNombre().equalsIgnoreCase(listaCampeon.get(j).getNombre())){
+                                if(probabilidad==0)
+                                    probabilidad++;
+                                if(probabilidad>0 && probabilidad<=5){
+                                    for(int n=0;n<listaCampeon.get(j).getListaAspecto().getSize();n++){
+                                        if(listaCampeon.get(j).getListaAspecto().buscarAspecto(n).getTipo().equalsIgnoreCase("Mitica")){
+                                            jugador.getListaCampeon().get(campeonIndex).getListaAspecto().addAspecto(listaCampeon.get(j).getListaAspecto().buscarAspecto(n));
+                                            r+="Aspecto Mitico: "+listaCampeon.get(j).getListaAspecto().buscarAspecto(n).getNombre();
+                                            break;
+                                        }
+                                    }
+                                }
+                                if(probabilidad>5 && probabilidad<=20){
+                                    for (int n = 0; n < listaCampeon.get(j).getListaAspecto().getSize(); n++) {
+                                        if (listaCampeon.get(j).getListaAspecto().buscarAspecto(n).getTipo().equalsIgnoreCase("Legendaria")) {
+                                            jugador.getListaCampeon().get(campeonIndex).getListaAspecto().addAspecto(listaCampeon.get(j).getListaAspecto().buscarAspecto(n));
+                                            r+="Aspecto Legendario: "+listaCampeon.get(j).getListaAspecto().buscarAspecto(n).getNombre();
+                                            break;
+                                        }
+                                    }
+                                }
+                                if(probabilidad>20 && probabilidad<=50){
+                                    for(int n=0;n<listaCampeon.get(j).getListaAspecto().getSize();n++){
+                                        if(listaCampeon.get(j).getListaAspecto().buscarAspecto(n).getTipo().equalsIgnoreCase("Epica")){
+                                            jugador.getListaCampeon().get(campeonIndex).getListaAspecto().addAspecto(listaCampeon.get(j).getListaAspecto().buscarAspecto(n));
+                                            r+="Aspecto Epico: "+listaCampeon.get(j).getListaAspecto().buscarAspecto(n).getNombre();
+                                            break;
+                                        }
+                                    }
+                                }
+                                if(probabilidad>50 && probabilidad<=100){
+                                    for(int n=0;n<listaCampeon.get(j).getListaAspecto().getSize();n++){
+                                        if(listaCampeon.get(j).getListaAspecto().buscarAspecto(n).getTipo().equalsIgnoreCase("Normal")){
+                                            jugador.getListaCampeon().get(campeonIndex).getListaAspecto().addAspecto(listaCampeon.get(j).getListaAspecto().buscarAspecto(n));
+                                            r+="Aspecto Normal: "+listaCampeon.get(j).getListaAspecto().buscarAspecto(n).getNombre();
+                                            break;
+                                        }
+                                    }
+                                }
+                                resp=false;
+                                break;
+                            }
+                        }
+                    }
+                    listaPersona.add(i, jugador);
+                    break;
+                }
+            }
+        }
+        return r;
     }
 
     @Override
@@ -218,8 +359,12 @@ public class SistemaTaller3Impl implements SistemaTaller3{
     }
 
     @Override
-    public void cerrarSistema(List<Persona> listaJugadorActualizado, ListaAspecto listaAspectoActualizado, List<Campeon> listaCampeonActualizado, List<Balance> listaVentaActualizado) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void cerrarSistema(List<Persona> listaJugadorActualizado, ListaAspecto listaAspectoActualizado, List<Campeon> listaCampeonActualizado, List<Balance> listaVentaActualizado, List <Orbe> listaOrbeActualizado) {
+        listaJugadorActualizado = listaPersona;
+        listaAspectoActualizado = listaAspecto;
+        listaCampeonActualizado = listaCampeon;
+        listaVentaActualizado = listaBalance;
+        listaOrbeActualizado = listaOrbe;
     }
     
 }

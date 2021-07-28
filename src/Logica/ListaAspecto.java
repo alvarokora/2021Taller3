@@ -74,4 +74,18 @@ public class ListaAspecto {
         return null;
     }
     
+    public void eliminarAspecto(String nombre){
+        NodoAspecto aux = last;
+        if(aux != null){
+            while(aux.getNext() != last){
+                if(aux.getAspecto().getNombre().equalsIgnoreCase(nombre)){
+                    last.getNext().setPrev(aux.getPrev());
+                    last.getPrev().setNext(aux.getNext());
+                    last=last.getNext();
+                }
+                aux=aux.getNext();
+            }
+        }
+    }
+    
 }

@@ -27,7 +27,7 @@ public interface SistemaTaller3 {
     public boolean ingresarBalanceMensual(String fecha, double venta);
     public String agregarSaldo(String nombre, double saldoNuevo);
     public String obtenerOrbe();
-    public String comprarOrbe(String nombre, String respuesta);
+    public String comprarOrbe(String nombre, String respuesta, String nombreUsuario);
     public String obtenerAspectoUsuario(String nombre);
     public String reRoll(String nombre1, String nombre2, String nombre3, String nombreUsuario);
     public String obtenerOrbeUsuario(String nombre);
@@ -35,6 +35,6 @@ public interface SistemaTaller3 {
     public String obtenerMesMasVentas();
     public String obtenerInformacionUsuario();
     public String obtenerMejorAspecto();
-    public void cerrarSistema(List <Persona> listaJugadorActualizado, ListaAspecto listaAspectoActualizado, List <Campeon> listaCampeonActualizado, List <Balance> listaVentaActualizado);
+    public void cerrarSistema(List <Persona> listaJugadorActualizado, ListaAspecto listaAspectoActualizado, List <Campeon> listaCampeonActualizado, List <Balance> listaVentaActualizado, List <Orbe> listaOrbeActualizado);
     
 }
