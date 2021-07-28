@@ -109,7 +109,11 @@ public class SistemaTaller3Impl implements SistemaTaller3{
                             for(int n=0;n<listaAspecto.getSize();n++){
                                 if(listaAspecto.buscarAspecto(n).getNombre().equalsIgnoreCase(nombreSkin)){
                                     Jugador jugador = (Jugador) listaPersona.get(i);
-                                    jugador.getListaFragmentoAspecto().addAspecto(listaAspecto.buscarAspecto(n));
+                                    for(int m=0;m<jugador.getListaCampeon().size();m++){
+                                        if(jugador.getListaCampeon().get(m).getNombre().equalsIgnoreCase(nombreCampeon)){
+                                            jugador.getListaCampeon().get(m).getListaAspecto().addAspecto(listaAspecto.buscarAspecto(n));
+                                        }
+                                    }
                                     listaPersona.add(i, jugador);
                                     return true;
                                 }
@@ -124,7 +128,23 @@ public class SistemaTaller3Impl implements SistemaTaller3{
     
     @Override
     public String obtenerInformacion(String nombre) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String r = "";
+        for(int i=0;i<listaPersona.size();i++){
+            if(listaPersona.get(i) instanceof Jugador){
+                    if(listaPersona.get(i).getNombre().equalsIgnoreCase(nombre)){
+                    Jugador jugador = (Jugador) listaPersona.get(i);
+                    r+="Nombre: "+jugador.getNombre()+", Contraseña: "+jugador.getContraseña()+", Saldo: "+jugador.getSaldo()+"[rp]";
+                    for(int j=0;j<jugador.getListaCampeon().size();j++){
+                        r+="\nCampeon: "+jugador.getListaCampeon().get(j).getNombre()+"Skin/s: ";
+                        for(int n=0;n<jugador.getListaCampeon().get(j).getListaAspecto().getSize();n++){
+                            r+=jugador.getListaCampeon().get(j).getListaAspecto().buscarAspecto(n).getNombre()+",";
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        return r;
     }
 
     @Override
@@ -135,12 +155,26 @@ public class SistemaTaller3Impl implements SistemaTaller3{
 
     @Override
     public String agregarSaldo(String nombre, double saldoNuevo) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for(int i=0;i<listaPersona.size();i++){
+            if(listaPersona.get(i) instanceof Jugador){
+                if(listaPersona.get(i).getNombre().equalsIgnoreCase(nombre)){
+                    Jugador jugador = (Jugador) listaPersona.get(i);
+                    jugador.setSaldo(jugador.getSaldo()+saldoNuevo);
+                    listaPersona.add(i, jugador);
+                    return "Saldo agregado";
+                }
+            }
+        }
+        return "No se agrego saldo";
     }
 
     @Override
     public String obtenerOrbe() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String r = "";
+        for(int i=0;i<listaOrbe.size();i++){
+            r+=listaOrbe.get(i).getNombre()+",";
+        }
+        return r;
     }
 
     @Override
