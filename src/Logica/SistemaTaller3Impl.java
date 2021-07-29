@@ -335,27 +335,148 @@ public class SistemaTaller3Impl implements SistemaTaller3{
 
     @Override
     public String obtenerOrbeUsuario(String nombre) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String r = "";
+        for(int i=0;i<listaPersona.size();i++){
+            if(listaPersona.get(i) instanceof Jugador){
+                if(listaPersona.get(i).getNombre().equalsIgnoreCase(nombre)){
+                    Jugador jugador = (Jugador) listaPersona.get(i);
+                    for(int j=0;j<jugador.getListaOrbe().size();j++){
+                        r+="Orbe: "+jugador.getListaOrbe().get(j)+"\n";
+                    }
+                    break;
+                }
+            }
+        }
+        return r;
     }
 
     @Override
     public String abrirOrbe(String nombreOrbe, String nombreUsuario, String respuesta) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for(int i=0;i<listaPersona.size();i++){
+            if(listaPersona.get(i) instanceof Jugador){
+                if(listaPersona.get(i).getNombre().equalsIgnoreCase(nombreUsuario)){
+                    Jugador jugador = (Jugador) listaPersona.get(i);
+                    for(int j=0;j<jugador.getListaOrbe().size();j++){
+                        if(jugador.getListaOrbe().get(j).getNombre().equalsIgnoreCase(nombreOrbe)){
+                            Orbe orbe = jugador.getListaOrbe().get(j);
+                            int cont = orbe.abrirOrbe();
+                            if(cont==0)
+                                cont++;
+                            if(cont>0 && cont<=45){
+                                Aspecto fragmentoAspecto = orbe.orbeFragmento();
+                                jugador.getListaFragmentoAspecto().addAspecto(fragmentoAspecto);
+                                listaPersona.add(i, jugador);
+                                return "Salio un fragmento de aspecto y es: "+fragmentoAspecto.getNombre();
+                            }
+                            if(cont>45 && cont<=90){
+                                Campeon campeon = orbe.orbeCampeon();
+                                jugador.getListaCampeon().add(campeon);
+                                listaPersona.add(i, jugador);
+                                return "Salio un campeon y es: "+campeon.getNombre();
+                            }
+                            if(cont>90 && cont<=100){
+                                Orbe orbe2 = orbe.orbeOrbe();
+                                if(respuesta.equalsIgnoreCase("si")){
+                                    jugador.getListaOrbe().add(orbe2);
+                                    listaPersona.add(i, jugador);
+                                    return "Orbe almacenado";
+                                }
+                                if(respuesta.equalsIgnoreCase("no")){
+                                    return abrirOrbe(orbe2.getNombre(),nombreUsuario,respuesta);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
     public String obtenerMesMasVentas() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        double mayor = -999999;
+        String mesMayor = "";
+        int[] contadores = {0,0,0,0,0,0,0,0,0,0,0,0};
+        String[] meses = {"01","02","03","04","05","06","07","08","09","10","11","12"};
+        int indexMayor = 0;
+        for(int i=0;i<meses.length;i++){
+            double acum = 0;
+            for(int j=0;j<listaBalance.size();j++){
+                if(listaBalance.get(j).getFecha().split("/")[1].equalsIgnoreCase(meses[i])){
+                    contadores[i]++;
+                    acum+=listaBalance.get(j).getVenta();
+                }
+            }
+            if(acum>=mayor){
+                mayor=acum;
+                mesMayor=meses[i];
+                indexMayor = i;
+            }
+        }
+        return "Mes "+mesMayor+" sumo un total de: "+mayor+", con una cantidad: "+contadores[indexMayor];
     }
 
     @Override
     public String obtenerInformacionUsuario() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String r = "";
+        for(int i=0;i<listaPersona.size();i++){
+            if(listaPersona.get(i) instanceof Jugador){
+                Jugador jugador = (Jugador) listaPersona.get(i);
+                String carrilPreferido = "";
+                int[] contadores = {0,0,0,0,0};
+                String[] carriles = {"TOP","JG","MID","ADC","SUPPORT"};
+                int indexMayor = -99999;
+                for(int j=0;j<jugador.getListaCampeon().size();j++){
+                    if(jugador.getListaCampeon().get(j).getLinea().equalsIgnoreCase("top"))
+                        contadores[0]++;
+                    if(jugador.getListaCampeon().get(j).getLinea().equalsIgnoreCase("jg"))
+                        contadores[1]++;
+                    if(jugador.getListaCampeon().get(j).getLinea().equalsIgnoreCase("mid"))
+                        contadores[2]++;
+                    if(jugador.getListaCampeon().get(j).getLinea().equalsIgnoreCase("adc"))
+                        contadores[3]++;
+                    if(jugador.getListaCampeon().get(j).getLinea().equalsIgnoreCase("support"))
+                        contadores[4]++;
+                }
+                for(int j=0;j<contadores.length;j++){
+                    if(contadores[j]>=indexMayor)
+                        indexMayor = j;
+                }
+                r+="Jugador: "+listaPersona.get(i).getNombre()+", Carril preferido: "+carriles[i]+"\n";
+            }
+        }
+        return r;
     }
 
     @Override
     public String obtenerMejorAspecto() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int[] contadoresAspectos = new int[listaAspecto.getSize()];
+        for(int i=0;i<listaAspecto.getSize();i++){
+            for(int j=0;j<listaPersona.size();j++){
+                if(listaPersona.get(j) instanceof Jugador){
+                    Jugador jugador = (Jugador) listaPersona.get(j);
+                    for(int n=0;n<jugador.getListaCampeon().size();n++){
+                        for(int m=0;m<jugador.getListaCampeon().get(n).getListaAspecto().getSize();m++){
+                            if(jugador.getListaCampeon().get(n).getListaAspecto().buscarAspecto(m).getNombre().equalsIgnoreCase(listaAspecto.buscarAspecto(i).getNombre())){
+                                contadoresAspectos[i]++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        int mayor = -999999;
+        String aspectoMayor = "";
+        for(int i=0;i<contadoresAspectos.length;i++){
+            if(contadoresAspectos[i]>=mayor){
+                mayor=contadoresAspectos[i];
+                aspectoMayor = listaAspecto.buscarAspecto(i).getNombre();
+            }
+        }
+        return "El aspecto mas frecuente es: "+aspectoMayor;
     }
 
     @Override

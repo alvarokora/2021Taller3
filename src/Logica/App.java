@@ -129,12 +129,9 @@ public class App {
             while(s.hasNextLine()){
                 String linea = s.nextLine();
                 Scanner s1 = new Scanner(linea);
-                String[] particiones = linea.split(",");
-                for(int i=0;i<particiones.length;i++){
-                    String nombre = particiones[i];
-                    sistema.ingresarOrbe(nombre);
-                    listaOrbe.add(new Orbe(nombre));
-                }
+                String nombre = s1.next();
+                sistema.ingresarOrbe(nombre);
+                listaOrbe.add(new Orbe(nombre));
             }
             s.close();
             
@@ -181,6 +178,77 @@ public class App {
             }
         }
         return false;
+    }
+    
+    public static boolean revisarNombreOrbeUsuario(List <Persona> listaPersona, String nombreUsuario, String nombreOrbe){
+        for(int i=0;i<listaPersona.size();i++){
+            if(listaPersona.get(i) instanceof Jugador){
+                if(listaPersona.get(i).getNombre().equalsIgnoreCase(nombreUsuario)){
+                    Jugador jugador = (Jugador) listaPersona.get(i);
+                    for(int j=0;j<jugador.getListaOrbe().size();j++){
+                        if(jugador.getListaOrbe().get(j).getNombre().equalsIgnoreCase(nombreOrbe))
+                            return true;
+                    }
+                    break;
+                }
+            }
+        }
+        return false;
+    }
+    
+    public static void salida(List <Persona> listaPersona, ListaAspecto listaAspecto, List <Balance> listaVenta, List <Orbe> listaOrbe, List <Campeon> listaCampeon){
+        try{
+            
+            FileWriter arch = new FileWriter("personas.txt");
+            PrintWriter reg = new PrintWriter(arch);
+            for(int i=0;i<listaPersona.size();i++){
+                if(listaPersona.get(i) instanceof Jugador){
+                    Jugador jugador = (Jugador) listaPersona.get(i);
+                    reg.print(jugador.getNombre()+","+jugador.getContraseña()+",player,"+(int)jugador.getSaldo());
+                    for(int j=0;j<jugador.getListaOrbe().size();j++){
+                        reg.print(","+jugador.getListaOrbe().get(j).getNombre());
+                    }
+                    for(int j=0;j<jugador.getListaCampeon().size();j++){
+                        reg.print(","+jugador.getListaCampeon().get(j).getNombre());
+                        for(int n=0;n<jugador.getListaCampeon().get(j).getListaAspecto().getSize();n++){
+                            reg.print(","+jugador.getListaCampeon().get(j).getListaAspecto().buscarAspecto(n).getNombre());
+                        }
+                    }
+                    reg.print("\n");
+                }
+                if(listaPersona.get(i) instanceof Administrador){
+                    reg.print(listaPersona.get(i).getNombre()+","+listaPersona.get(i).getContraseña()+",Admin\n");
+                }
+            }
+            arch.close();
+            
+            arch = new FileWriter("aspectosPersonajes.txt");
+            reg = new PrintWriter(arch);
+            for(int i=0;i<listaCampeon.size();i++){
+                reg.print(listaCampeon.get(i).getNombre()+","+listaCampeon.get(i).getLinea());
+                for(int j=0;j<listaCampeon.get(i).getListaAspecto().getSize();j++){
+                    reg.print(","+listaCampeon.get(i).getListaAspecto().buscarAspecto(j).getNombre()+","+listaCampeon.get(i).getListaAspecto().buscarAspecto(j).getTipo());
+                }
+                reg.print("\n");
+            }
+            arch.close();
+            
+            arch = new FileWriter("balances.txt");
+            reg = new PrintWriter(arch);
+            for(int i=0;i<listaVenta.size();i++){
+                reg.print(listaVenta.get(i).getFecha()+","+(int)listaVenta.get(i).getVenta()+"\n");
+            }
+            arch.close();
+            
+            arch = new FileWriter("orbes.txt");
+            reg = new PrintWriter(arch);
+            for(int i=0;i<listaOrbe.size();i++){
+                reg.print(listaOrbe.get(i).getNombre()+"\n");
+            }
+            arch.close();
+            
+        }catch(IOException ex){
+        }
     }
     
     public static void menu(SistemaTaller3 sistema, List <Campeon> listaCampeon, Scanner s, List <Persona> listaPersona, List <Orbe> listaOrbe, ListaAspecto listaAspecto, List <Balance> listaVenta){
@@ -267,15 +335,49 @@ public class App {
                             sistema.cerrarSistema(listaPersona, listaAspecto, listaCampeon, listaVenta, listaOrbe);
                         }
                         if(opcion.equalsIgnoreCase("5")){
-                            
+                            System.out.println(sistema.obtenerOrbeUsuario(nombre));
+                            System.out.print("Ingrese nombre del orbe a abrir: ");
+                            String nombreOrbe = s.next();
+                            while(revisarNombreOrbeUsuario(listaPersona,nombre,nombreOrbe)==false){
+                                System.out.print("Nombre ingresado erroneo, ingrese nuevamente: ");
+                                nombreOrbe = s.next();
+                            }
+                            System.out.print("En el caso hipotetico de que salga un orbe lo desea almacenar o abrir (si/no): ");
+                            String respuesta = s.next();
+                            while(!respuesta.equalsIgnoreCase("si") && !respuesta.equalsIgnoreCase("no")){
+                                System.out.println("Respuesta ingresada erronea, ingrese nuevamente: ");
+                                respuesta = s.next();
+                            }
+                            System.out.println(sistema.abrirOrbe(nombreOrbe, nombre, respuesta));
+                            sistema.cerrarSistema(listaPersona, listaAspecto, listaCampeon, listaVenta, listaOrbe);
                         }
-                        System.out.print("1)Informacion de usuario\n2)Añadir saldo\n3)Comprar orbe\n4)Re-Roll\n5)Abrir orbe\6)Cerrar sesion\n7)Cerrar sistema\nIngrese opcion: ");
+                        System.out.print("1)Informacion de usuario\n2)Añadir saldo\n3)Comprar orbe\n4)Re-Roll\n5)Abrir orbe\n6)Cerrar sesion\n7)Cerrar sistema\nIngrese opcion: ");
                         opcion = s.next();
                     }
                     if(opcion.equalsIgnoreCase("7"))
                         break;
                 }else{
-
+                    System.out.print("1)Mes mas ventas\n2)Informacion de jugadores\n3)Mejor aspecto\n4)Cerrar sesion\n5)Cerrar sistema\nIngrese opcion: ");
+                    String opcion = s.next();
+                    while(!opcion.equalsIgnoreCase("4") && !opcion.equalsIgnoreCase("5")){
+                        while(!opcion.equalsIgnoreCase("1") && !opcion.equalsIgnoreCase("2") && !opcion.equalsIgnoreCase("3")){
+                            System.out.print("Opcion ingresada erronea, ingrese nuevamente: ");
+                            opcion = s.next();
+                        }
+                        if(opcion.equalsIgnoreCase("1")){
+                            System.out.println(sistema.obtenerMesMasVentas());
+                        }
+                        if(opcion.equalsIgnoreCase("2")){
+                            System.out.println(sistema.obtenerInformacionUsuario());
+                        }
+                        if(opcion.equalsIgnoreCase("3")){
+                            System.out.println(sistema.obtenerMejorAspecto());
+                        }
+                        System.out.print("1)Mes mas ventas\n2)Informacion de jugadores\n3)Mejor aspecto\n4)Cerrar sesion\n5)Cerrar sistema\nIngrese opcion: ");
+                        opcion = s.next();
+                    }
+                    if(opcion.equalsIgnoreCase("5"))
+                        break;
                 }
                 System.out.println("---------------\nCerrando sesion\n---------------");
                 System.out.print("Ingrese fecha(dd/mm/aaaa): ");
@@ -296,6 +398,8 @@ public class App {
         }else{
             System.out.println("Uno de los archivos no existe");
         }
+        sistema.cerrarSistema(listaPersona, listaAspecto, listaCampeon, listaVenta, listaOrbe);
+        salida(listaPersona,listaAspecto,listaVenta,listaOrbe,listaCampeon);
         System.out.println("-----------------------------\nGracias por ocupar el sistema\n-----------------------------");
     }
     
